@@ -293,7 +293,6 @@ const BestMoments: React.FC = () => {
                   thumbnail={video.thumbnail}
                   videoUrl={video.videoUrl}
                   duration={video.duration}
-                  views={video.views}
                   date={video.date}
                   onClick={() => handleVideoClick(video)}
                 />
