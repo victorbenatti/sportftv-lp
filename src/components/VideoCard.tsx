@@ -1,6 +1,6 @@
 import React from 'react';
 import { motion } from 'framer-motion';
-import { Play, Clock, Eye, Calendar, Download } from 'lucide-react';
+import { Play, Clock, Calendar, Download } from 'lucide-react';
 
 // Interface para tipagem dos dados do vídeo
 interface VideoCardProps {
@@ -21,7 +21,6 @@ const VideoCard: React.FC<VideoCardProps> = ({
   thumbnail,
   videoUrl,
   duration,
-  views,
   date,
   onClick
 }) => {
