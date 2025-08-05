@@ -1,0 +1,20 @@
+<svg width="80" height="80" viewBox="0 0 80 80" fill="none" xmlns="http://www.w3.org/2000/svg">
+  <!-- Ball base -->
+  <circle cx="40" cy="40" r="38" fill="#FFD700" stroke="#FFA500" stroke-width="2" opacity="0.8"/>
+  
+  <!-- Volleyball lines -->
+  <path d="M 10 40 Q 40 20 70 40" stroke="#FFA500" stroke-width="2" fill="none" opacity="0.9"/>
+  <path d="M 10 40 Q 40 60 70 40" stroke="#FFA500" stroke-width="2" fill="none" opacity="0.9"/>
+  <path d="M 40 10 Q 20 40 40 70" stroke="#FFA500" stroke-width="2" fill="none" opacity="0.9"/>
+  <path d="M 40 10 Q 60 40 40 70" stroke="#FFA500" stroke-width="2" fill="none" opacity="0.9"/>
+  
+  <!-- Center line -->
+  <line x1="40" y1="2" x2="40" y2="78" stroke="#FFA500" stroke-width="2" opacity="0.9"/>
+  <line x1="2" y1="40" x2="78" y2="40" stroke="#FFA500" stroke-width="2" opacity="0.9"/>
+  
+  <!-- Highlight for 3D effect -->
+  <ellipse cx="30" cy="25" rx="8" ry="12" fill="#FFED4E" opacity="0.6"/>
+  
+  <!-- Shadow for depth -->
+  <ellipse cx="50" cy="55" rx="6" ry="8" fill="#CC8400" opacity="0.4"/>
+</svg>
