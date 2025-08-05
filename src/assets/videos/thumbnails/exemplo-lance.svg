@@ -1,0 +1,35 @@
+<svg width="320" height="180" viewBox="0 0 320 180" fill="none" xmlns="http://www.w3.org/2000/svg">
+  <!-- Background -->
+  <rect width="320" height="180" fill="#1e40af"/>
+  
+  <!-- Sand court pattern -->
+  <rect x="0" y="140" width="320" height="40" fill="#fbbf24"/>
+  
+  <!-- Net -->
+  <rect x="155" y="60" width="10" height="80" fill="white"/>
+  <rect x="150" y="55" width="20" height="5" fill="white"/>
+  
+  <!-- Volleyball -->
+  <circle cx="200" cy="100" r="15" fill="white"/>
+  <path d="M185 100 Q200 85 215 100" stroke="#1e40af" stroke-width="2" fill="none"/>
+  <path d="M185 100 Q200 115 215 100" stroke="#1e40af" stroke-width="2" fill="none"/>
+  <line x1="200" y1="85" x2="200" y2="115" stroke="#1e40af" stroke-width="2"/>
+  
+  <!-- Players silhouettes -->
+  <ellipse cx="120" cy="130" rx="8" ry="15" fill="#374151"/>
+  <circle cx="120" cy="110" r="6" fill="#374151"/>
+  <rect x="115" y="115" width="10" height="15" fill="#374151"/>
+  
+  <ellipse cx="250" cy="135" rx="8" ry="15" fill="#374151"/>
+  <circle cx="250" cy="115" r="6" fill="#374151"/>
+  <rect x="245" y="120" width="10" height="15" fill="#374151"/>
+  
+  <!-- Play button overlay -->
+  <circle cx="160" cy="90" r="25" fill="rgba(255,255,255,0.9)"/>
+  <polygon points="150,80 150,100 175,90" fill="#1e40af"/>
+  
+  <!-- Title overlay -->
+  <rect x="0" y="150" width="320" height="30" fill="rgba(0,0,0,0.7)"/>
+  <text x="10" y="170" fill="white" font-family="Arial, sans-serif" font-size="14" font-weight="bold">Exemplo Lance</text>
+  <text x="280" y="170" fill="white" font-family="Arial, sans-serif" font-size="12">00:30</text>
+</svg>

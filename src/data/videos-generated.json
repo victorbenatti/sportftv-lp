@@ -1,0 +1,46 @@
+[
+  {
+    "id": "exemplo-lance",
+    "title": "Exemplo Lance",
+    "videoUrl": "/src/assets/videos/exemplo-lance.mp4",
+    "thumbnail": "/src/assets/videos/thumbnails/exemplo-lance.svg",
+    "duration": "3:15",
+    "views": 211,
+    "date": "2025-08-05",
+    "description": "Momento incrível do exemplo lance",
+    "tournament": "Torneio Atual"
+  },
+  {
+    "id": "Replay 2025-08-03 12-42-40",
+    "title": "Replay 2025 08 03 12 42 40",
+    "videoUrl": "/src/assets/videos/Replay 2025-08-03 12-42-40.mp4",
+    "thumbnail": "/src/assets/videos/thumbnails/Replay 2025-08-03 12-42-40.jpg",
+    "duration": "1:40",
+    "views": 895,
+    "date": "2025-08-05",
+    "description": "Momento incrível do replay 2025 08 03 12 42 40",
+    "tournament": "Torneio Atual"
+  },
+  {
+    "id": "Replay 2025-08-03 12-44-24",
+    "title": "Replay 2025 08 03 12 44 24",
+    "videoUrl": "/src/assets/videos/Replay 2025-08-03 12-44-24.mp4",
+    "thumbnail": "/src/assets/futevolei-ball.svg",
+    "duration": "1:20",
+    "views": 904,
+    "date": "2025-08-05",
+    "description": "Momento incrível do replay 2025 08 03 12 44 24",
+    "tournament": "Torneio Atual"
+  },
+  {
+    "id": "Replay 2025-08-03 12-48-04",
+    "title": "Replay 2025 08 03 12 48 04",
+    "videoUrl": "/src/assets/videos/Replay 2025-08-03 12-48-04.mp4",
+    "thumbnail": "/src/assets/futevolei-ball.svg",
+    "duration": "3:29",
+    "views": 581,
+    "date": "2025-08-05",
+    "description": "Momento incrível do replay 2025 08 03 12 48 04",
+    "tournament": "Torneio Atual"
+  }
+]

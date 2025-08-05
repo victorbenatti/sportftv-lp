@@ -1,0 +1,13 @@
+[
+  {
+    "id": 1,
+    "title": "Replay 1 master",
+    "description": "ultimo replay da cateogoria master",
+    "thumbnail": "/src/assets/sport-ftv-logo.png",
+    "videoUrl": "/src/assets/videos/Replay 2025-08-03 12-48-04.mp4",
+    "duration": "15:30",    
+    "views": "1.2K",
+    "date": "2025-08-03",
+    "category": "Master"
+  }
+]

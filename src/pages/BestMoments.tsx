@@ -1,94 +1,195 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import { motion } from 'framer-motion';
-import { Play, Calendar, Clock, Filter, Search } from 'lucide-react';
+import { Filter, Search } from 'lucide-react';
+import VideoCard from '../components/VideoCard';
+import VideoPlayer from '../components/VideoPlayer';
 
 interface VideoMoment {
-  id: string;
+  id: number;
   title: string;
-  date: string;
-  time: string;
-  duration: string;
-  tournament: string;
+  description: string;
   thumbnail: string;
+  videoUrl: string;
+  duration: string;
+  views: string;
+  date: string;
+}
+
+interface SelectedVideo {
+  videoUrl: string;
+  title: string;
   description: string;
 }
 
 const BestMoments: React.FC = () => {
   const [selectedFilter, setSelectedFilter] = useState('todos');
   const [searchTerm, setSearchTerm] = useState('');
+  const [isPlayerOpen, setIsPlayerOpen] = useState(false);
+  const [selectedVideo, setSelectedVideo] = useState<SelectedVideo | null>(null);
+  const [videoMoments, setVideoMoments] = useState<VideoMoment[]>([]);
+  const [loading, setLoading] = useState(true);
 
-  // Mock data - em produção viria da API
-  const videoMoments: VideoMoment[] = [
-    {
-      id: '1',
-      title: 'Saque Espetacular - Final Masculina',
-      date: '2025-01-15',
-      time: '14:32:15',
-      duration: '7s',
-      tournament: 'Campeonato Paulista 2025',
-      thumbnail: 'https://via.placeholder.com/400x225/1e3a8a/ffffff?text=Saque+Espetacular',
-      description: 'Momento incrível capturado automaticamente durante a final masculina'
-    },
-    {
-      id: '2',
-      title: 'Defesa Impossível - Semifinal',
-      date: '2025-01-14',
-      time: '16:45:22',
-      duration: '7s',
-      tournament: 'Campeonato Paulista 2025',
-      thumbnail: 'https://via.placeholder.com/400x225/f59e0b/ffffff?text=Defesa+Impossivel',
-      description: 'Defesa que mudou o rumo da partida'
-    },
-    {
-      id: '3',
-      title: 'Cortada Decisiva',
-      date: '2025-01-13',
-      time: '18:20:10',
-      duration: '7s',
-      tournament: 'Copa Rio 2025',
-      thumbnail: 'https://via.placeholder.com/400x225/1e3a8a/ffffff?text=Cortada+Decisiva',
-      description: 'O ponto que definiu o campeão'
-    },
-    {
-      id: '4',
-      title: 'Jogada Coletiva Perfeita',
-      date: '2025-01-12',
-      time: '15:15:30',
-      duration: '7s',
-      tournament: 'Copa Rio 2025',
-      thumbnail: 'https://via.placeholder.com/400x225/f59e0b/ffffff?text=Jogada+Coletiva',
-      description: 'Sincronia perfeita entre os atletas'
-    },
-    {
-      id: '5',
-      title: 'Virada Histórica',
-      date: '2025-01-11',
-      time: '17:08:45',
-      duration: '7s',
-      tournament: 'Torneio Nacional',
-      thumbnail: 'https://via.placeholder.com/400x225/1e3a8a/ffffff?text=Virada+Historica',
-      description: 'Momento que ficará na história do futevôlei'
-    },
-    {
-      id: '6',
-      title: 'Bloqueio Espetacular',
-      date: '2025-01-10',
-      time: '19:30:12',
-      duration: '7s',
-      tournament: 'Torneio Nacional',
-      thumbnail: 'https://via.placeholder.com/400x225/f59e0b/ffffff?text=Bloqueio+Show',
-      description: 'Bloqueio que arrancou aplausos da arquibancada'
+  // Função para extrair data do nome do arquivo
+  const extractDateFromFileName = (fileName: string): string => {
+    // Padrão: Replay 2025-08-03 09-59-57 ou YYYY-MM-DD
+    // No formato do arquivo: YYYY-MM-DD (2025-08-03 = 3 de agosto de 2025)
+    const datePattern = /(\d{4})-(\d{2})-(\d{2})/;
+    const dateMatch = fileName.match(datePattern);
+    
+    if (dateMatch) {
+      const [, year, month, day] = dateMatch;
+      // Formatação brasileira: DD/MM/AAAA
+      // 2025-08-03 vira 03/08/2025 (3 de agosto de 2025)
+      return `${day}/${month}/${year}`;
     }
-  ];
+    
+    // Fallback para data atual
+    return new Date().toLocaleDateString('pt-BR');
+  };
 
-  const tournaments = ['todos', ...Array.from(new Set(videoMoments.map(v => v.tournament)))];
+  // Função para extrair hora do nome do arquivo
+  const extractTimeFromFileName = (fileName: string): string => {
+    // Padrão: Replay 2025-08-03 09-59-57
+    const timePattern = /\d{4}-\d{2}-\d{2}\s+(\d{2})-(\d{2})-(\d{2})/;
+    const timeMatch = fileName.match(timePattern);
+    
+    if (timeMatch) {
+      const [, hour, minute, second] = timeMatch;
+      return `${hour}:${minute}:${second}`;
+    }
+    
+    // Fallback para duração padrão
+    return '00:30';
+  };
+
+  // Função para gerar thumbnail do primeiro frame do vídeo
+  const generateVideoThumbnail = (videoUrl: string): Promise<string> => {
+    return new Promise((resolve) => {
+      const video = document.createElement('video');
+      const canvas = document.createElement('canvas');
+      const ctx = canvas.getContext('2d');
+      
+      video.crossOrigin = 'anonymous';
+      video.currentTime = 1; // Captura no segundo 1
+      
+      video.onloadeddata = () => {
+        canvas.width = 320;
+        canvas.height = 180;
+        
+        if (ctx) {
+          // Desenha o frame do vídeo no canvas
+          ctx.drawImage(video, 0, 0, canvas.width, canvas.height);
+          
+          // Converte para base64
+          const thumbnailDataUrl = canvas.toDataURL('image/jpeg', 0.8);
+          resolve(thumbnailDataUrl);
+        } else {
+          // Fallback para thumbnail padrão
+          resolve('/src/assets/default-thumbnail.svg');
+        }
+      };
+      
+      video.onerror = () => {
+        // Fallback para thumbnail padrão em caso de erro
+        resolve('/src/assets/default-thumbnail.svg');
+      };
+      
+      video.src = videoUrl;
+      video.load();
+    });
+  };
+
+  // Função para detectar automaticamente vídeos na pasta assets/videos
+  useEffect(() => {
+    const loadVideos = async () => {
+      try {
+        // Detecta automaticamente todos os vídeos na pasta assets/videos
+        const videoModules = import.meta.glob('/src/assets/videos/**/*.{mp4,webm,mov,avi}', { 
+          eager: true, 
+          as: 'url' 
+        });
+        
+        // Detecta automaticamente todas as thumbnails na pasta assets/videos/thumbnails
+        const thumbnailModules = import.meta.glob('/src/assets/videos/thumbnails/**/*.{jpg,jpeg,png,webp,svg}', { 
+          eager: true, 
+          as: 'url' 
+        });
+
+        const videos: VideoMoment[] = [];
+        let videoId = 1;
+
+        // Processa cada vídeo encontrado
+        for (const [videoPath, videoUrl] of Object.entries(videoModules)) {
+          const fileName = videoPath.split('/').pop()?.split('.')[0] || '';
+          
+          // Procura por uma thumbnail correspondente
+          const thumbnailEntry = Object.entries(thumbnailModules).find(([thumbPath]) => {
+            const thumbFileName = thumbPath.split('/').pop()?.split('.')[0] || '';
+            return thumbFileName === fileName;
+          });
+
+          let thumbnailUrl: string;
+          
+          if (thumbnailEntry) {
+            // Usa thumbnail personalizada se existir
+            thumbnailUrl = thumbnailEntry[1] as string;
+          } else {
+            // Gera thumbnail automática do primeiro frame
+            try {
+              thumbnailUrl = await generateVideoThumbnail(videoUrl as string);
+            } catch (error) {
+              console.warn(`Erro ao gerar thumbnail para ${fileName}:`, error);
+              thumbnailUrl = '/src/assets/default-thumbnail.svg';
+            }
+          }
+
+          // Cria o objeto do vídeo com dados automáticos
+          videos.push({
+            id: videoId++,
+            title: fileName.replace(/[-_]/g, ' ').replace(/\b\w/g, l => l.toUpperCase()),
+            description: `Melhor momento capturado automaticamente`,
+            thumbnail: thumbnailUrl,
+            videoUrl: videoUrl as string,
+            duration: extractTimeFromFileName(fileName),
+            views: Math.floor(Math.random() * 1000).toString(),
+            date: extractDateFromFileName(fileName)
+          });
+        }
+
+        setVideoMoments(videos);
+      } catch (error) {
+        console.error('Erro ao carregar vídeos:', error);
+        // Fallback para dados estáticos se houver erro
+        setVideoMoments([]);
+      } finally {
+        setLoading(false);
+      }
+    };
+
+    loadVideos();
+  }, []);
+
+  const tournaments = ['todos']; // Simplificado por enquanto
 
   const filteredVideos = videoMoments.filter(video => {
-    const matchesFilter = selectedFilter === 'todos' || video.tournament === selectedFilter;
     const matchesSearch = video.title.toLowerCase().includes(searchTerm.toLowerCase()) ||
                          video.description.toLowerCase().includes(searchTerm.toLowerCase());
-    return matchesFilter && matchesSearch;
+    return matchesSearch;
   });
+
+  const handleVideoClick = (video: VideoMoment) => {
+    setSelectedVideo({
+      videoUrl: video.videoUrl,
+      title: video.title,
+      description: video.description
+    });
+    setIsPlayerOpen(true);
+  };
+
+  const handleClosePlayer = () => {
+    setIsPlayerOpen(false);
+    setSelectedVideo(null);
+  };
 
   return (
     <div className="min-h-screen pt-20">
@@ -106,7 +207,7 @@ const BestMoments: React.FC = () => {
             </h1>
             <p className="text-xl opacity-90 max-w-3xl mx-auto">
               Reviva os momentos mais emocionantes capturados automaticamente durante nossas transmissões. 
-              Cada clipe de 7 segundos é salvo automaticamente quando detectamos jogadas especiais.
+              Cada clipe de 5 segundos é salvo automaticamente quando detectamos jogadas especiais.
             </p>
           </motion.div>
         </div>
@@ -150,7 +251,23 @@ const BestMoments: React.FC = () => {
       {/* Video Grid */}
       <section className="section-padding">
         <div className="container-custom">
-          {filteredVideos.length === 0 ? (
+          {loading ? (
+            <motion.div
+              initial={{ opacity: 0 }}
+              animate={{ opacity: 1 }}
+              className="text-center py-16"
+            >
+              <div className="text-sport-blue mb-4">
+                <motion.div
+                  animate={{ rotate: 360 }}
+                  transition={{ duration: 1, repeat: Infinity, ease: "linear" }}
+                  className="w-12 h-12 border-4 border-sport-blue border-t-transparent rounded-full mx-auto"
+                />
+              </div>
+              <h3 className="text-2xl font-semibold text-gray-900 mb-2">Carregando vídeos...</h3>
+              <p className="text-gray-600">Detectando automaticamente os vídeos da pasta</p>
+            </motion.div>
+          ) : filteredVideos.length === 0 ? (
             <motion.div
               initial={{ opacity: 0 }}
               animate={{ opacity: 1 }}
@@ -158,56 +275,28 @@ const BestMoments: React.FC = () => {
             >
               <div className="text-6xl mb-4">🎥</div>
               <h3 className="text-2xl font-semibold text-gray-900 mb-2">Nenhum momento encontrado</h3>
-              <p className="text-gray-600">Tente ajustar os filtros ou termo de busca</p>
+              <p className="text-gray-600">
+                {videoMoments.length === 0 
+                  ? 'Adicione vídeos na pasta /src/assets/videos/ para que apareçam automaticamente aqui'
+                  : 'Tente ajustar os filtros ou termo de busca'
+                }
+              </p>
             </motion.div>
           ) : (
             <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8">
-              {filteredVideos.map((video, index) => (
-                <motion.div
+              {filteredVideos.map((video) => (
+                <VideoCard
                   key={video.id}
-                  initial={{ opacity: 0, y: 30 }}
-                  animate={{ opacity: 1, y: 0 }}
-                  transition={{ duration: 0.6, delay: index * 0.1 }}
-                  whileHover={{ y: -5 }}
-                  className="bg-white rounded-xl shadow-lg overflow-hidden hover:shadow-xl transition-all duration-300"
-                >
-                  {/* Thumbnail */}
-                  <div className="relative group cursor-pointer">
-                    <img
-                      src={video.thumbnail}
-                      alt={video.title}
-                      className="w-full h-48 object-cover"
-                    />
-                    <div className="absolute inset-0 bg-black/50 opacity-0 group-hover:opacity-100 transition-opacity duration-300 flex items-center justify-center">
-                      <div className="w-16 h-16 bg-white/20 rounded-full flex items-center justify-center backdrop-blur-sm">
-                        <Play className="text-white ml-1" size={24} />
-                      </div>
-                    </div>
-                    <div className="absolute top-2 right-2 bg-sport-yellow text-sport-dark px-2 py-1 rounded text-sm font-semibold">
-                      {video.duration}
-                    </div>
-                  </div>
-
-                  {/* Content */}
-                  <div className="p-6">
-                    <h3 className="text-xl font-semibold text-gray-900 mb-2">{video.title}</h3>
-                    <p className="text-gray-600 mb-4">{video.description}</p>
-                    
-                    <div className="space-y-2 text-sm text-gray-500">
-                      <div className="flex items-center space-x-2">
-                        <Calendar size={16} />
-                        <span>{new Date(video.date).toLocaleDateString('pt-BR')}</span>
-                      </div>
-                      <div className="flex items-center space-x-2">
-                        <Clock size={16} />
-                        <span>{video.time}</span>
-                      </div>
-                      <div className="text-sport-blue font-medium">
-                        {video.tournament}
-                      </div>
-                    </div>
-                  </div>
-                </motion.div>
+                  id={video.id}
+                  title={video.title}
+                  description={video.description}
+                  thumbnail={video.thumbnail}
+                  videoUrl={video.videoUrl}
+                  duration={video.duration}
+                  views={video.views}
+                  date={video.date}
+                  onClick={() => handleVideoClick(video)}
+                />
               ))}
             </div>
           )}
@@ -237,7 +326,7 @@ const BestMoments: React.FC = () => {
                   <span className="text-sport-dark font-bold">2</span>
                 </div>
                 <h3 className="font-semibold mb-2">Captura Instantânea</h3>
-                <p className="text-gray-600 text-sm">Ao pressionar um macro, salvamos automaticamente os últimos 7 segundos da transmissão</p>
+                <p className="text-gray-600 text-sm">Ao pressionar um macro, salvamos automaticamente os últimos 5 segundos da transmissão</p>
               </div>
               <div className="text-center">
                 <div className="w-12 h-12 bg-sport-blue rounded-lg flex items-center justify-center mx-auto mb-3">
@@ -250,6 +339,17 @@ const BestMoments: React.FC = () => {
           </motion.div>
         </div>
       </section>
+
+      {/* Video Player Modal */}
+      {selectedVideo && (
+        <VideoPlayer
+          isOpen={isPlayerOpen}
+          onClose={handleClosePlayer}
+          videoUrl={selectedVideo.videoUrl}
+          title={selectedVideo.title}
+          description={selectedVideo.description}
+        />
+      )}
     </div>
   );
 };

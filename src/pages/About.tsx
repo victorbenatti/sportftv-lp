@@ -5,13 +5,13 @@ import { Users, Heart, Zap, Target, Award, Camera, Play, Trophy, Mail, Phone, Ma
 const About: React.FC = () => {
   const founders = [
     {
-      name: 'Sócio 1',
+      name: 'Misael Nunes',
       role: 'Co-fundador & CEO',
       description: 'Apaixonado por futevôlei e tecnologia, lidera a visão estratégica da Sport FTV.',
-      expertise: ['Gestão Estratégica', 'Desenvolvimento de Negócios', 'Futevôlei']
+      expertise: ['Gestão Estratégica', 'Desenvolvimento de Negócios', 'Apaixonado por Futevôlei']
     },
     {
-      name: 'Sócio 2',
+      name: 'Victor Benatti',
       role: 'Co-fundador & CTO',
       description: 'Especialista em tecnologia, responsável por toda a inovação técnica da empresa.',
       expertise: ['Desenvolvimento de Software', 'Sistemas de Transmissão', 'Inovação Tecnológica']
@@ -45,17 +45,17 @@ const About: React.FC = () => {
     {
       year: '2024',
       title: 'Fundação da Sport FTV',
-      description: 'Dois amigos apaixonados por futevôlei decidem revolucionar as transmissões esportivas'
+      description: ''
     },
     {
-      year: '2024',
+      year: '2025',
       title: 'Primeira Transmissão',
       description: 'Realizamos nossa primeira transmissão ao vivo com tecnologia própria'
     },
     {
-      year: '2024',
-      title: 'Sistema de Câmeras',
-      description: 'Desenvolvemos o sistema inovador de câmeras ativadas por botão'
+      year: '2025',
+      title: 'Marco Importante',
+      description: 'Alcançamos nossas primeiras 10 transmissões ao vivo.'
     },
     {
       year: '2025',
@@ -66,8 +66,8 @@ const About: React.FC = () => {
 
   const stats = [
     { number: '2', label: 'Sócios Fundadores' },
-    { number: '50+', label: 'Torneios Transmitidos' },
-    { number: '20+', label: 'Arenas Parceiras' },
+    { number: '12+', label: 'Torneios Transmitidos' },
+    { number: '300+', label: 'Horas de Transmissão' },    
     { number: '100%', label: 'Dedicação ao Futevôlei' }
   ];
 
@@ -362,7 +362,7 @@ const About: React.FC = () => {
                 <Mail className="text-sport-dark" size={28} />
               </div>
               <h3 className="text-xl font-semibold mb-2">E-mail</h3>
-              <p className="text-gray-300">contato@sportftv.com</p>
+              <p className="text-gray-300">sportftvcps@gmail.com</p>
             </motion.div>
 
             <motion.div
@@ -375,7 +375,7 @@ const About: React.FC = () => {
                 <Phone className="text-sport-dark" size={28} />
               </div>
               <h3 className="text-xl font-semibold mb-2">Telefone</h3>
-              <p className="text-gray-300">(11) 99999-9999</p>
+              <p className="text-gray-300">(19) 98279-6873</p>
             </motion.div>
 
             <motion.div
@@ -388,7 +388,7 @@ const About: React.FC = () => {
                 <MapPin className="text-sport-dark" size={28} />
               </div>
               <h3 className="text-xl font-semibold mb-2">Localização</h3>
-              <p className="text-gray-300">São Paulo, SP</p>
+              <p className="text-gray-300">Campinas, SP</p>
             </motion.div>
           </div>
         </div>

@@ -1,6 +1,6 @@
 import React from 'react';
 import { motion } from 'framer-motion';
-import { Play, Camera, Trophy, Zap, Users, Star, ArrowRight } from 'lucide-react';
+import { Play, Camera, Trophy, Zap, ArrowRight } from 'lucide-react';
 import { Link } from 'react-router-dom';
 import futevoleiball from '../assets/animatedBall.png';
 
