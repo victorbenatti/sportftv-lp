@@ -10,7 +10,6 @@ interface VideoCardProps {
   thumbnail: string;
   videoUrl: string;
   duration: string;
-  views: string;
   date: string;
   onClick: () => void; // Função para abrir o player
 }
