@@ -4,15 +4,21 @@ import { Filter, Search } from 'lucide-react';
 import VideoCard from '../components/VideoCard';
 import VideoPlayer from '../components/VideoPlayer';
 
+// Import Firestore
+import { db } from '../services/firebase';
+import { collection, getDocs, query, orderBy } from 'firebase/firestore';
+
+// 2. Interface atualizada (thumbnail agora é thumbnailUrl)
 interface VideoMoment {
-  id: number;
+  id: string; // O ID do documento do Firestore será o nosso ID
   title: string;
-  description: string;
-  thumbnail: string;
+  description?: string; // Opcional
+  thumbnailUrl?: string; // Opcional - Mudamos de 'thumbnail' para 'thumbnailUrl'
   videoUrl: string;
-  duration: string;
-  views: string;
+  duration?: string; // Opcional
+  views?: number; // Opcional
   date: string;
+  tournament: string;
 }
 
 interface SelectedVideo {
@@ -30,150 +36,43 @@ const BestMoments: React.FC = () => {
   const [loading, setLoading] = useState(true);
 
   // Função para extrair data do nome do arquivo
-  const extractDateFromFileName = (fileName: string): string => {
-    // Padrão: Replay 2025-08-03 09-59-57 ou YYYY-MM-DD
-    // No formato do arquivo: YYYY-MM-DD (2025-08-03 = 3 de agosto de 2025)
-    const datePattern = /(\d{4})-(\d{2})-(\d{2})/;
-    const dateMatch = fileName.match(datePattern);
-    
-    if (dateMatch) {
-      const [, year, month, day] = dateMatch;
-      // Formatação brasileira: DD/MM/AAAA
-      // 2025-08-03 vira 03/08/2025 (3 de agosto de 2025)
-      return `${day}/${month}/${year}`;
-    }
-    
-    // Fallback para data atual
-    return new Date().toLocaleDateString('pt-BR');
-  };
 
   // Função para extrair hora do nome do arquivo
-  const extractTimeFromFileName = (fileName: string): string => {
-    // Padrão: Replay 2025-08-03 09-59-57
-    const timePattern = /\d{4}-\d{2}-\d{2}\s+(\d{2})-(\d{2})-(\d{2})/;
-    const timeMatch = fileName.match(timePattern);
-    
-    if (timeMatch) {
-      const [, hour, minute, second] = timeMatch;
-      return `${hour}:${minute}:${second}`;
-    }
-    
-    // Fallback para duração padrão
-    return '00:30';
-  };
-
+  
   // Função para gerar thumbnail do primeiro frame do vídeo
-  const generateVideoThumbnail = (videoUrl: string): Promise<string> => {
-    return new Promise((resolve) => {
-      const video = document.createElement('video');
-      const canvas = document.createElement('canvas');
-      const ctx = canvas.getContext('2d');
-      
-      video.crossOrigin = 'anonymous';
-      video.currentTime = 1; // Captura no segundo 1
-      
-      video.onloadeddata = () => {
-        canvas.width = 320;
-        canvas.height = 180;
-        
-        if (ctx) {
-          // Desenha o frame do vídeo no canvas
-          ctx.drawImage(video, 0, 0, canvas.width, canvas.height);
-          
-          // Converte para base64
-          const thumbnailDataUrl = canvas.toDataURL('image/jpeg', 0.8);
-          resolve(thumbnailDataUrl);
-        } else {
-          // Fallback para thumbnail padrão
-          resolve('/src/assets/default-thumbnail.svg');
-        }
-      };
-      
-      video.onerror = () => {
-        // Fallback para thumbnail padrão em caso de erro
-        resolve('/src/assets/default-thumbnail.svg');
-      };
-      
-      video.src = videoUrl;
-      video.load();
-    });
-  };
+  
 
   // Função para detectar automaticamente vídeos na pasta assets/videos
   useEffect(() => {
-    const loadVideos = async () => {
+    const fetchVideos = async () => {
+      setLoading(true);
       try {
-        // Detecta automaticamente todos os vídeos na pasta assets/videos
-        const videoModules = import.meta.glob('/src/assets/videos/**/*.{mp4,webm,mov,avi}', { 
-          eager: true, 
-          as: 'url' 
-        });
+        const videosCollectionRef = collection(db, 'videos');
+        const q = query(videosCollectionRef, orderBy('date', 'desc')); // Ordena por data, mais novo primeiro
+        const querySnapshot = await getDocs(q);
         
-        // Detecta automaticamente todas as thumbnails na pasta assets/videos/thumbnails
-        const thumbnailModules = import.meta.glob('/src/assets/videos/thumbnails/**/*.{jpg,jpeg,png,webp,svg}', { 
-          eager: true, 
-          as: 'url' 
-        });
+        const videosData = querySnapshot.docs.map(doc => ({
+          id: doc.id,
+          ...doc.data()
+        })) as VideoMoment[];
 
-        const videos: VideoMoment[] = [];
-        let videoId = 1;
-
-        // Processa cada vídeo encontrado
-        for (const [videoPath, videoUrl] of Object.entries(videoModules)) {
-          const fileName = videoPath.split('/').pop()?.split('.')[0] || '';
-          
-          // Procura por uma thumbnail correspondente
-          const thumbnailEntry = Object.entries(thumbnailModules).find(([thumbPath]) => {
-            const thumbFileName = thumbPath.split('/').pop()?.split('.')[0] || '';
-            return thumbFileName === fileName;
-          });
-
-          let thumbnailUrl: string;
-          
-          if (thumbnailEntry) {
-            // Usa thumbnail personalizada se existir
-            thumbnailUrl = thumbnailEntry[1] as string;
-          } else {
-            // Gera thumbnail automática do primeiro frame
-            try {
-              thumbnailUrl = await generateVideoThumbnail(videoUrl as string);
-            } catch (error) {
-              console.warn(`Erro ao gerar thumbnail para ${fileName}:`, error);
-              thumbnailUrl = '/src/assets/default-thumbnail.svg';
-            }
-          }
-
-          // Cria o objeto do vídeo com dados automáticos
-          videos.push({
-            id: videoId++,
-            title: fileName.replace(/[-_]/g, ' ').replace(/\b\w/g, l => l.toUpperCase()),
-            description: `Melhor momento capturado automaticamente`,
-            thumbnail: thumbnailUrl,
-            videoUrl: videoUrl as string,
-            duration: extractTimeFromFileName(fileName),
-            views: Math.floor(Math.random() * 1000).toString(),
-            date: extractDateFromFileName(fileName)
-          });
-        }
-
-        setVideoMoments(videos);
+        setVideoMoments(videosData);
       } catch (error) {
-        console.error('Erro ao carregar vídeos:', error);
-        // Fallback para dados estáticos se houver erro
-        setVideoMoments([]);
+        console.error("Erro ao buscar vídeos do Firestore:", error);
+        // Opcional: Tratar o erro, talvez mostrando uma mensagem na tela
       } finally {
         setLoading(false);
       }
     };
 
-    loadVideos();
+    fetchVideos();
   }, []);
 
   const tournaments = ['todos']; // Simplificado por enquanto
 
   const filteredVideos = videoMoments.filter(video => {
     const matchesSearch = video.title.toLowerCase().includes(searchTerm.toLowerCase()) ||
-                         video.description.toLowerCase().includes(searchTerm.toLowerCase());
+                         (video.description || '').toLowerCase().includes(searchTerm.toLowerCase());
     return matchesSearch;
   });
 
@@ -181,7 +80,7 @@ const BestMoments: React.FC = () => {
     setSelectedVideo({
       videoUrl: video.videoUrl,
       title: video.title,
-      description: video.description
+      description: video.description || 'Sem descrição disponível'
     });
     setIsPlayerOpen(true);
   };
@@ -289,10 +188,10 @@ const BestMoments: React.FC = () => {
                   key={video.id}
                   id={video.id}
                   title={video.title}
-                  description={video.description}
-                  thumbnail={video.thumbnail}
+                  description={video.description || 'Sem descrição'}
+                  thumbnail={video.thumbnailUrl || '/src/assets/default-thumbnail.svg'}
                   videoUrl={video.videoUrl}
-                  duration={video.duration}
+                  duration={video.duration || '0:00'}
                   date={video.date}
                   onClick={() => handleVideoClick(video)}
                 />

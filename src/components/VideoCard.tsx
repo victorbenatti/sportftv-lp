@@ -4,7 +4,7 @@ import { Play, Clock, Calendar, Download } from 'lucide-react';
 
 // Interface para tipagem dos dados do vídeo
 interface VideoCardProps {
-  id: number;
+  id: string;
   title: string;
   description: string;
   thumbnail: string;
