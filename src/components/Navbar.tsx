@@ -1,7 +1,7 @@
 import React, { useState, useEffect } from 'react';
 import { Link, useLocation } from 'react-router-dom';
 import { motion, AnimatePresence } from 'framer-motion';
-import { Menu, X, Play, Camera, Trophy, Users, Home } from 'lucide-react';
+import { Menu, X, Play, Camera, Trophy, Users, Home, Lock } from 'lucide-react';
 import sportFtvLogo from '../assets/sport-ftv-logo.png';
 
 const Navbar: React.FC = () => {
@@ -53,7 +53,7 @@ const Navbar: React.FC = () => {
                 <Link
                   key={item.name}
                   to={item.path}
-                  className={`flex items-center space-x-2 px-4 py-2 rounded-lg transition-all duration-300 hover:bg-sport-blue/10 ${
+                  className={`flex items-center space-x-2 px-4 py-2 rounded-lg transition-all duration-300 hover:bg-sport-blue/10 whitespace-nowrap ${
                     isActive ? 'text-sport-blue font-semibold' : 'text-gray-700 hover:text-sport-blue'
                   }`}
                 >
@@ -63,6 +63,15 @@ const Navbar: React.FC = () => {
               );
             })}
           </div>
+
+          {/* Admin Access Button - Desktop */}
+          <Link
+            to="/admin"
+            className="hidden lg:flex items-center space-x-1 px-2 py-1 rounded-md transition-all duration-300 bg-transparent border border-sport-blue hover:bg-sport-blue hover:text-white text-sport-blue lg:absolute lg:right-0 text-sm whitespace-nowrap"
+          >
+            <Lock size={14} />
+            <span>Acesso Restrito</span>
+          </Link>
 
           {/* Mobile menu button */}
           <button
@@ -103,6 +112,16 @@ const Navbar: React.FC = () => {
                   </Link>
                 );
               })}
+              
+              {/* Admin Access Button - Mobile */}
+              <Link
+                to="/admin"
+                onClick={() => setIsOpen(false)}
+                className="flex items-center space-x-3 px-4 py-3 rounded-lg transition-all duration-300 bg-transparent hover:bg-sport-blue hover:text-white text-sport-blue mt-2 border-t border-gray-200 pt-4 whitespace-nowrap"
+              >
+                <Lock size={18} />
+                <span>Acesso Restrito</span>
+              </Link>
             </div>
           </motion.div>
         )}
