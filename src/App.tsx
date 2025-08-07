@@ -5,6 +5,7 @@ import BestMoments from './pages/BestMoments';
 import Cameras from './pages/Cameras';
 import Tournaments from './pages/Tournaments';
 import About from './pages/About';
+import Admin from './pages/Admin';
 import Footer from './components/Footer';
 
 function App() {
@@ -19,6 +20,7 @@ function App() {
             <Route path="/cameras" element={<Cameras />} />
             <Route path="/torneios" element={<Tournaments />} />
             <Route path="/sobre" element={<About />} />
+            <Route path="/admin" element={<Admin />} />
           </Routes>
         </main>
         <Footer />
